@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wxy.dao.SrProductMapDao">
+    <resultMap id="BaseResultMap" type="com.wxy.model.SrProductMap">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="original_product_id" jdbcType="BIGINT" property="originalProductId"/>
+        <result column="end_product_id" jdbcType="BIGINT" property="endProductId"/>
+        <result column="product_num" jdbcType="INTEGER" property="productNum"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <association property="originalProductInfo" javaType="com.wxy.model.SrOriginalProduct">
+            <id column="ori_id" jdbcType="BIGINT" property="id"/>
+            <result column="product_name" jdbcType="VARCHAR" property="productName"/>
+            <result column="product_desc" jdbcType="VARCHAR" property="productDesc"/>
+            <result column="product_image" jdbcType="VARCHAR" property="productImage"/>
+            <result column="product_source" jdbcType="VARCHAR" property="productSource"/>
+            <result column="product_size" jdbcType="INTEGER" property="productSize"/>
+            <result column="product_price" jdbcType="INTEGER" property="productPrice"/>
+            <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        </association>
+    </resultMap>
+    <sql id="Base_Column_List">
+        spm.id, spm.original_product_id, spm.end_product_id, spm.product_num, spm.create_time, spm.update_time,
+  sop.id ori_id, sop.product_name, sop.product_desc, sop.product_image, sop.product_source, sop.product_size, sop.product_price,
+    sop.user_id
+    </sql>
+    <select id="getEndProductProduce" resultMap="BaseResultMap" resultType="com.wxy.model.SrProductMap">
+        select <include refid="Base_Column_List"/>
+        from sr_product_map spm
+                 left join sr_original_product sop on spm.original_product_id = sop.id
+        where spm.end_product_id = #{endProductId}
+    </select>
+</mapper>

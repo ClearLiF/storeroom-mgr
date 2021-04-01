@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wxy.dao.SrAdminLogDao">
+  <resultMap id="BaseResultMap" type="com.wxy.model.SrAdminLog">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="admin_id" jdbcType="BIGINT" property="adminId" />
+    <result column="admin_name" jdbcType="VARCHAR" property="adminName" />
+    <result column="operation_userId" jdbcType="BIGINT" property="operationUserid" />
+    <result column="operation_userName" jdbcType="VARCHAR" property="operationUsername" />
+    <result column="operation_result" jdbcType="VARCHAR" property="operationResult" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="operation_model" jdbcType="VARCHAR" property="operationModel" />
+    <result column="log_desc" jdbcType="VARCHAR" property="logDesc" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, admin_id, admin_name, operation_userId, operation_userName, ip, operation_model, 
+    log_desc, create_time
+  </sql>
+
+</mapper>

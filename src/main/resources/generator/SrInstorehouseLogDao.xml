@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wxy.dao.SrInstorehouseLogDao">
+    <resultMap id="BaseResultMap" type="com.wxy.model.SrInstorehouseLog">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="product_id" jdbcType="BIGINT" property="productId"/>
+        <result column="storehouse_id" jdbcType="BIGINT" property="storehouseId"/>
+        <result column="product_num" jdbcType="INTEGER" property="productNum"/>
+        <result column="pay_num" jdbcType="INTEGER" property="payNum"/>
+        <result column="product_status" jdbcType="VARCHAR" property="productStatus"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <association property="storehouseInfo" javaType="com.wxy.model.SrStorehouse">
+            <id column="to_id" jdbcType="BIGINT" property="id"/>
+            <result column="to_sr_site" jdbcType="VARCHAR" property="srSite"/>
+            <result column="to_sr_name" jdbcType="VARCHAR" property="srName"/>
+            <result column="to_sr_size" jdbcType="INTEGER" property="srSize"/>
+            <result column="to_sr_remain_size" jdbcType="INTEGER" property="srRemainSize"/>
+        </association>
+        <association property="adminInfo" javaType="com.wxy.model.SrAdmin">
+            <id column="admin_id" jdbcType="BIGINT" property="id"/>
+            <result column="admin_username" jdbcType="VARCHAR" property="username"/>
+            <result column="admin_user_nickname" jdbcType="VARCHAR" property="userNickname"/>
+            <result column="admin_user_avatar" jdbcType="VARCHAR" property="userAvatar"/>
+        </association>
+        <association property="productInfo" javaType="com.wxy.model.SrOriginalProduct">
+            <id column="pr_id" jdbcType="BIGINT" property="id"/>
+            <result column="pr_product_name" jdbcType="VARCHAR" property="productName"/>
+            <result column="pr_product_desc" jdbcType="VARCHAR" property="productDesc"/>
+            <result column="pr_product_image" jdbcType="VARCHAR" property="productImage"/>
+            <result column="pr_product_source" jdbcType="VARCHAR" property="productSource"/>
+        </association>
+    </resultMap>
+    <sql id="Base_Column_List">
+        sil.id, sil.product_id, sil.product_num,sil.storehouse_id,
+sil.pay_num, sil.product_status, sil.user_id,sil.create_time, sil.update_time,
+sa.id admin_id ,
+sa.username admin_username,
+sa.user_nickname admin_user_nickname,
+sa.user_avatar admin_user_avatar,
+sop.id pr_id
+,sop.product_name pr_product_name,
+sop.product_desc pr_product_desc,
+sop.product_image pr_product_image,
+sop.product_source pr_product_source,
+ss.id to_id,
+ss.sr_site to_sr_site,
+ss.sr_name to_sr_name,
+ss.sr_size to_sr_size,
+ss.sr_remain_size to_sr_remain_size
+    </sql>
+    <select id="getPurchaseLogByType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sr_instorehouse_log sil
+        left join sr_admin sa on sil.user_id = sa.id
+        left join sr_storehouse ss on sil.storehouse_id = ss.id
+        left join sr_original_product sop on sil.product_id = sop.id
+        <where>
+            <if test="type == '1'.toString()">
+                ss.sr_name LIKE concat('%',#{search.storehouseName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="type == '2'.toString()">
+                sa.username LIKE concat('%',#{search.username,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="filter == '2'.toString()">
+                and sil.user_id = #{userId}
+            </if>
+        </where>
+        order by sil.update_time desc
+    </select>
+
+    <resultMap id="BaseResultMap2" type="com.wxy.model.response.log.StorehouseCountLogVO">
+        <result column="count" jdbcType="INTEGER" property="count"/>
+        <result column="month" jdbcType="INTEGER" property="month"/>
+    </resultMap>
+    <select id="getInStorehouseCountLogStoreRoomAdmin" resultMap="BaseResultMap2">
+        SELECT MONTH(FROM_UNIXTIME(update_time / 1000, '%Y-%m-%d')) month, sum(product_num) count
+        FROM sr_instorehouse_log
+        where user_id = #{userId}
+        <if test="productId != null">
+            and product_id = #{productId}
+        </if>
+        GROUP BY MONTH(FROM_UNIXTIME(update_time / 1000, '%Y-%m-%d'))
+    </select>
+    <select id="getInStorehouseCountLog" resultMap="BaseResultMap2"
+            resultType="com.wxy.model.response.log.StorehouseCountLogVO">
+        SELECT MONTH(FROM_UNIXTIME(update_time / 1000, '%Y-%m-%d')) month, sum(product_num) count
+        FROM sr_instorehouse_log
+        <where>
+            <if test="productId != null">
+                 product_id = #{productId}
+            </if>
+        </where>
+        GROUP BY MONTH(FROM_UNIXTIME(update_time / 1000, '%Y-%m-%d'))
+    </select>
+</mapper>

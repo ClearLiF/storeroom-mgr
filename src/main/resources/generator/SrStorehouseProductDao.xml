@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wxy.dao.SrStorehouseProductDao">
+    <resultMap id="BaseResultMap" type="com.wxy.model.SrStorehouseProduct">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="product_id" jdbcType="BIGINT" property="productId"/>
+        <result column="storehouse_id" jdbcType="BIGINT" property="storehouseId"/>
+        <result column="product_num" jdbcType="INTEGER" property="productNum"/>
+        <result column="sr_desc" jdbcType="VARCHAR" property="srDesc"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <collection property="product"
+                    ofType="com.wxy.model.SrOriginalProduct">
+            <id column="product_id" jdbcType="BIGINT" property="id"/>
+            <result column="product_name" jdbcType="VARCHAR" property="productName"/>
+            <result column="product_image" jdbcType="VARCHAR" property="productImage"/>
+        </collection>
+        <collection property="storehouse"
+                    ofType="com.wxy.model.SrStorehouse">
+            <id column="sr_id" jdbcType="BIGINT" property="id"/>
+            <result column="sr_site" jdbcType="VARCHAR" property="srSite"/>
+            <result column="sr_name" jdbcType="VARCHAR" property="srName"/>
+            <result column="sr_size" jdbcType="INTEGER" property="srSize"/>
+            <result column="sr_remain_size" jdbcType="INTEGER" property="srRemainSize"/>
+        </collection>
+    </resultMap>
+    <sql id="Base_Column_List">
+        ssp.id, ssp.product_id, ssp.storehouse_id, ssp.product_num,
+ssp.sr_desc, ssp.create_time, ssp.update_time,sop.id product_id,sop.product_name,sop.product_image,
+ss.id sr_id,ss.sr_site,ss.sr_name,ss.sr_size,ss.sr_remain_size
+    </sql>
+    <update id="reduceProduct">
+        update sr_storehouse_product
+        set sr_storehouse_product.product_num = sr_storehouse_product.product_num - #{productNum}
+          , sr_storehouse_product.update_time = #{time}
+        where sr_storehouse_product.product_id = #{productId}
+          and sr_storehouse_product.storehouse_id = #{storehouseId}
+
+    </update>
+    <select id="getStoreProductByTypeStoreAdmin" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sr_storehouse_product ssp
+        left join sr_original_product sop on ssp.product_id = sop.id
+        left join sr_storehouse ss on ssp.storehouse_id = ss.id
+        where ss.user_id = #{userId}
+        <if test="type == '1'.toString() ">
+            and sop.product_name LIKE concat('%',#{search.productName},'%')
+        </if>
+    </select>
+    <select id="getStoreProductByTypeSuperAdmin" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sr_storehouse_product ssp
+        left join sr_original_product sop on ssp.product_id = sop.id
+        left join sr_storehouse ss on ssp.storehouse_id = ss.id
+        <where>
+            <if test="type == '1'.toString() ">
+                sop.product_name LIKE concat('%',#{search.productName},'%')
+            </if>
+            <if test="type == '2'.toString() ">
+                and ss.id = #{search.storeProductId}
+            </if>
+        </where>
+
+    </select>
+</mapper>

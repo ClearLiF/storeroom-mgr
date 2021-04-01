@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wxy.dao.SrEndProductDao">
+    <resultMap id="BaseResultMap" type="com.wxy.model.SrEndProduct">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="product_name" jdbcType="VARCHAR" property="productName"/>
+        <result column="product_image" jdbcType="VARCHAR" property="productImage"/>
+        <result column="delete_mark" jdbcType="VARCHAR" property="deleteMark"/>
+        <result column="product_price" jdbcType="INTEGER" property="productPrice"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <collection property="srProductMapList"
+                    ofType="com.wxy.model.SrProductMap">
+            <id column="sp_id" jdbcType="BIGINT" property="id"/>
+            <result column="original_product_id" jdbcType="BIGINT" property="originalProductId"/>
+            <result column="end_product_id" jdbcType="BIGINT" property="endProductId"/>
+            <result column="product_num" jdbcType="INTEGER" property="productNum"/>
+            <association property="originalProductInfo" javaType="com.wxy.model.SrOriginalProduct">
+                <result column="or_product_name" jdbcType="VARCHAR" property="productName"/>
+                <result column="or_product_desc" jdbcType="VARCHAR" property="productDesc"/>
+                <result column="or_product_image" jdbcType="VARCHAR" property="productImage"/>
+            </association>
+        </collection>
+    </resultMap>
+    <sql id="Base_Column_List">
+        sep.id, sep.product_name, sep.product_image, sep.product_price, sep.user_id, sep.create_time, sep.update_time,
+  spm.id sp_id, spm.original_product_id, spm.end_product_id, spm.product_num,
+sop.product_name or_product_name,sop.product_desc or_product_desc,sop.product_image or_product_image
+    </sql>
+    <select id="getEndProductByType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from (select * from sr_end_product limit #{skip},#{size}) sep
+        left join sr_product_map spm on sep.id = spm.end_product_id
+        left join sr_original_product sop on spm.original_product_id = sop.id
+        <where>
+            sep.delete_mark ='0'
+            <if test="type =='1'.toString()">
+               and  sep.product_name LIKE concat('%',#{search.productName,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        order by sep.update_time desc
+
+    </select>
+    <select id="selectCountByType" resultType="java.lang.Integer">
+        select count(*) from sr_end_product sep
+        <where>
+            sep.delete_mark ='0'
+            <if test="type =='1'.toString()">
+              and   sep.product_name LIKE concat('%',#{search.productName,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

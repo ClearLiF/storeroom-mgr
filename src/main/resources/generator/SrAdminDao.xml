@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wxy.dao.SrAdminDao">
+    <resultMap id="BaseResultMap" type="com.wxy.model.SrAdmin">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="user_nickname" jdbcType="VARCHAR" property="userNickname"/>
+        <result column="user_avatar" jdbcType="VARCHAR" property="userAvatar"/>
+        <result column="last_login_time" jdbcType="BIGINT" property="lastLoginTime"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <collection property="srRoleList" ofType="com.wxy.model.SrRole">
+            <id column="role_id" jdbcType="INTEGER" property="id"/>
+            <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
+            <result column="role_desc" jdbcType="VARCHAR" property="roleDesc"/>
+        </collection>
+    </resultMap>
+    <resultMap id="BaseResultMap2" type="com.wxy.model.SrAdmin">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="user_nickname" jdbcType="VARCHAR" property="userNickname"/>
+        <result column="user_avatar" jdbcType="VARCHAR" property="userAvatar"/>
+        <result column="last_login_time" jdbcType="BIGINT" property="lastLoginTime"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <collection property="srRoleList" ofType="com.wxy.model.SrRole">
+            <id column="role_id" jdbcType="INTEGER" property="id"/>
+            <result column="role_name" jdbcType="VARCHAR" property="roleName"/>
+            <result column="role_desc" jdbcType="VARCHAR" property="roleDesc"/>
+        </collection>
+        <collection property="storehouseInfo" ofType="com.wxy.model.SrStorehouse">
+            <id column="sr_id" jdbcType="BIGINT" property="id"/>
+            <result column="sr_site" jdbcType="VARCHAR" property="srSite"/>
+            <result column="sr_name" jdbcType="VARCHAR" property="srName"/>
+            <result column="sr_size" jdbcType="INTEGER" property="srSize"/>
+            <result column="sr_remain_size" jdbcType="INTEGER" property="srRemainSize"/>
+        </collection>
+    </resultMap>
+    <sql id="Base_Column_List">
+        sa.id, sa.username, sa.`password`, sa.user_nickname, sa.user_avatar,
+sa.last_login_time, sa.create_time,
+    sa.update_time,sr.id  role_id,sr.role_name,sr.role_desc
+    </sql>
+    <sql id="Base_Column_List2">
+        sa.id, sa.username, sa.`password`, sa.user_nickname, sa.user_avatar,
+sa.last_login_time, sa.create_time,
+    sa.update_time,sr.id  role_id,sr.role_name,sr.role_desc,ssh.id sr_id ,ssh.sr_site,ssh.sr_name,ssh.sr_size,
+ssh.sr_remain_size
+    </sql>
+    <select id="getUserInfoById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sr_admin sa inner join sr_admin_role sar on sa.id = sar.admin_id
+        inner join sr_role sr on sar.role_id = sr.id
+        where sa.id = #{userId} and sa.delete_mark = '0'
+    </select>
+    <select id="selectByUserName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sr_admin sa inner join sr_admin_role sar on sa.id = sar.admin_id
+        inner join sr_role sr on sar.role_id = sr.id
+        where sa.username = #{userName} and sa.delete_mark = '0'
+    </select>
+    <select id="getAdminListByType" resultMap="BaseResultMap2">
+        select
+        <include refid="Base_Column_List2"/>
+        from sr_admin sa inner join sr_admin_role sar on sa.id = sar.admin_id
+        inner join sr_role sr on sar.role_id = sr.id
+        left join sr_storehouse ssh on sa.id = ssh.user_id
+        <where>
+            sa.delete_mark = '0'
+            <if test="type == '1'.toString()">
+                and sa.username LIKE concat('%',#{adminListDTO.adminName,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        order by sa.update_time desc
+    </select>
+    <select id="getSubAdminList" resultType="com.wxy.model.SrAdmin">
+        select
+        <include refid="Base_Column_List"/>
+        from sr_admin sa inner join sr_admin_role sar on sa.id = sar.admin_id
+        inner join sr_role sr on sar.role_id = sr.id
+        where sar.role_id=2 and sa.delete_mark = '0'
+    </select>
+    <select id="getAdminInfo" resultMap="BaseResultMap2">
+        select
+        <include refid="Base_Column_List2"/>
+        from sr_admin sa inner join sr_admin_role sar on sa.id = sar.admin_id
+        inner join sr_role sr on sar.role_id = sr.id
+        left join  sr_storehouse ssh on sa.id = ssh.user_id
+        where sa.id = #{adminId}
+    </select>
+
+</mapper>

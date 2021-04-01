@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wxy.dao.SrStorehouseDao">
+    <resultMap id="BaseResultMap" type="com.wxy.model.SrStorehouse">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="sr_site" jdbcType="VARCHAR" property="srSite"/>
+        <result column="sr_name" jdbcType="VARCHAR" property="srName"/>
+        <result column="sr_size" jdbcType="INTEGER" property="srSize"/>
+        <result column="sr_remain_size" jdbcType="INTEGER" property="srRemainSize"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="sr_status" jdbcType="VARCHAR" property="srStatus"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <association property="username" javaType="string">
+            <result column="username" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+    <sql id="Base_Column_List">
+        sh.id, sh.sr_site, sh.sr_size,sh.sr_name,sh.sr_remain_size,
+sh.user_id, sh.sr_status, sh.create_time, sh.update_time,
+sa.username
+    </sql>
+    <update id="reduceProduct">
+        update sr_storehouse
+        set sr_storehouse.sr_remain_size = sr_storehouse.sr_remain_size + #{size},
+            sr_storehouse.update_time    = #{time}
+        where sr_storehouse.id = #{storehouseId}
+
+    </update>
+    <select id="getStorehouseListByType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sr_storehouse sh left join  sr_admin sa on sh.user_id = sa.id
+        <where>
+            <if test="type == '1'.toString()">
+                and sh.sr_site LIKE concat('%',#{searchStore.site,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="type == '2'.toString()">
+                and sh.sr_name LIKE concat('%',#{searchStore.srName,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        order by sh.update_time desc
+    </select>
+
+</mapper>

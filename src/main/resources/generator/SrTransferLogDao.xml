@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wxy.dao.SrTransferLogDao">
+    <resultMap id="BaseResultMap" type="com.wxy.model.SrTransferLog">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="product_id" jdbcType="BIGINT" property="productId"/>
+        <result column="product_num" jdbcType="INTEGER" property="productNum"/>
+        <result column="transfer_status" jdbcType="VARCHAR" property="transferStatus"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="from_storehouse_id" jdbcType="BIGINT" property="fromStorehouseId"/>
+        <result column="to_storehouse_id" jdbcType="BIGINT" property="toStorehouseId"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <association property="fromStorehouse" javaType="com.wxy.model.SrStorehouse">
+            <id column="fr_id" jdbcType="BIGINT" property="id"/>
+            <result column="fr_sr_site" jdbcType="VARCHAR" property="srSite"/>
+            <result column="fr_sr_name" jdbcType="VARCHAR" property="srName"/>
+            <result column="fr_sr_size" jdbcType="INTEGER" property="srSize"/>
+            <result column="fr_sr_remain_size" jdbcType="INTEGER" property="srRemainSize"/>
+        </association>
+        <association property="toStorehouse" javaType="com.wxy.model.SrStorehouse">
+            <id column="to_id" jdbcType="BIGINT" property="id"/>
+            <result column="to_sr_site" jdbcType="VARCHAR" property="srSite"/>
+            <result column="to_sr_name" jdbcType="VARCHAR" property="srName"/>
+            <result column="to_sr_size" jdbcType="INTEGER" property="srSize"/>
+            <result column="to_sr_remain_size" jdbcType="INTEGER" property="srRemainSize"/>
+        </association>
+        <association property="adminInfo" javaType="com.wxy.model.SrAdmin">
+            <id column="admin_id" jdbcType="BIGINT" property="id"/>
+            <result column="admin_username" jdbcType="VARCHAR" property="username"/>
+            <result column="admin_user_nickname" jdbcType="VARCHAR" property="userNickname"/>
+            <result column="admin_user_avatar" jdbcType="VARCHAR" property="userAvatar"/>
+        </association>
+        <association property="productInfo" javaType="com.wxy.model.SrOriginalProduct">
+            <id column="pr_id" jdbcType="BIGINT" property="id"/>
+            <result column="pr_product_name" jdbcType="VARCHAR" property="productName"/>
+            <result column="pr_product_desc" jdbcType="VARCHAR" property="productDesc"/>
+            <result column="pr_product_image" jdbcType="VARCHAR" property="productImage"/>
+            <result column="pr_product_source" jdbcType="VARCHAR" property="productSource"/>
+        </association>
+    </resultMap>
+    <sql id="Base_Column_List">
+        sop.id, sop.product_id, sop.product_num, sop.transfer_status, sop.user_id, sop.from_storehouse_id, sop.to_storehouse_id,
+    sop.create_time, sop.update_time,
+pr.id pr_id
+,pr.product_name pr_product_name,
+pr.product_desc pr_product_desc,
+pr.product_image pr_product_image,
+pr.product_source pr_product_source,
+sa.id admin_id ,
+sa.username admin_username,
+sa.user_nickname admin_user_nickname,
+sa.user_avatar admin_user_avatar,
+ssTo.id to_id,
+ssTo.sr_site to_sr_site,
+ssTo.sr_name to_sr_name,
+ssTo.sr_size to_sr_size,
+ssTo.sr_remain_size to_sr_remain_size,
+fr.id fr_id,
+fr.sr_site fr_sr_site,
+fr.sr_name fr_sr_name,
+fr.sr_size fr_sr_size,
+fr.sr_remain_size fr_sr_remain_size
+    </sql>
+    <select id="getTransferLogByTypeStoreRoomAdmin" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sr_transfer_log sop
+        left join sr_original_product pr on sop.product_id = pr.id
+        left join sr_admin sa on sop.user_id = sa.id
+        left join sr_storehouse fr on sop.from_storehouse_id = fr.id
+        left join sr_storehouse ssTo on sop.to_storehouse_id = ssTo.id
+        <where>
+            (fr.user_id = #{userId} or ssTo.user_id = #{userId} )
+            <if test="type == '1'.toString()">
+                and pr.product_name LIKE concat('%',#{search.productName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="type == '2'.toString()">
+                and ( fr.sr_name LIKE concat('%',#{search.storehouseName,jdbcType=VARCHAR},'%')
+                or ssTo.sr_name LIKE concat('%',#{search.storehouseName,jdbcType=VARCHAR},'%')
+                )
+            </if>
+        </where>
+        order by sop.update_time desc
+
+    </select>
+    <select id="getTransferLogByType" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sr_transfer_log sop
+        left join sr_original_product pr on sop.product_id = pr.id
+        left join sr_admin sa on sop.user_id = sa.id
+        left join sr_storehouse fr on sop.from_storehouse_id = fr.id
+        left join sr_storehouse ssTo on sop.to_storehouse_id = ssTo.id
+        <where>
+            <if test="type == '1'.toString()">
+                 pr.product_name LIKE concat('%',#{search.productName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="type == '2'.toString()">
+                 ( fr.sr_name LIKE concat('%',#{search.storehouseName,jdbcType=VARCHAR},'%')
+                or ssTo.sr_name LIKE concat('%',#{search.storehouseName,jdbcType=VARCHAR},'%')
+                )
+            </if>
+        </where>
+        order by sop.update_time desc
+    </select>
+    <select id="getTransferStorehouseCountLogStoreRoomAdmin"
+            resultType="com.wxy.model.response.log.StorehouseCountLogVO">
+        SELECT MONTH(FROM_UNIXTIME(update_time / 1000, '%Y-%m-%d')) month, sum(product_num) count
+        FROM sr_transfer_log
+        where user_id = #{userId}
+        <if test="productId != null">
+            and product_id = #{productId}
+        </if>
+        GROUP BY MONTH(FROM_UNIXTIME(update_time / 1000, '%Y-%m-%d'))
+
+    </select>
+    <select id="getTransferStorehouseCountLog" resultType="com.wxy.model.response.log.StorehouseCountLogVO">
+        SELECT MONTH(FROM_UNIXTIME(update_time / 1000, '%Y-%m-%d')) month, sum(product_num) count
+        FROM sr_transfer_log
+        <where>
+            <if test="productId != null">
+                product_id = #{productId}
+            </if>
+        </where>
+        GROUP BY MONTH(FROM_UNIXTIME(update_time / 1000, '%Y-%m-%d'))
+
+    </select>
+
+</mapper>
