@@ -107,7 +107,15 @@ public class StoreHouseController {
     @ApiOperation(value = "返回所有仓库列表", notes = "")
     @GetMapping("storehouseAll")
     public QueryResponseResult<SrSimpleStorehouseVO> getStorehouseAll(){
-        return storeHouseService.getStorehouseAll();
+        SrAdmin admin = JwtUtil.getAdmin(request);
+        return storeHouseService.getStorehouseAll(admin.getId());
+    }
+
+    @ApiOperation(value = "库存查询2",notes = "")
+    @PostMapping("storeProductByType2")
+    public QueryResponseResult<StoreProductListDTO> getStoreProductByType2(@RequestBody SearchStoreProductDTO search){
+        SrAdmin admin = JwtUtil.getAdmin(request);
+        return storeHouseService.getStoreProductByType(search,admin.getId());
     }
 
 }

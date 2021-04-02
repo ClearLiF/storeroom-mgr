@@ -28,6 +28,11 @@ public class SrAdminModifyDTO implements Serializable {
      */
     private String userAvatar;
 
+    /**
+     * 用户邮箱
+     */
+    private String userMail;
+
     private static final long serialVersionUID = 1L;
 
 

@@ -86,7 +86,7 @@ sep.id pr_id,sep.product_name pr_product_name, sep.product_image pr_product_imag
         FROM sr_outstorehouse_log
         <where>
             <if test="productId != null">
-                product_id = #{productId}
+                end_product_id = #{productId}
             </if>
         </where>
         GROUP BY MONTH(FROM_UNIXTIME(update_time / 1000, '%Y-%m-%d'))

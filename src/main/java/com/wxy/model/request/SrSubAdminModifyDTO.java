@@ -33,6 +33,11 @@ public class SrSubAdminModifyDTO implements Serializable {
     @ApiModelProperty(value="用户头像")
     private String userAvatar;
 
+    /**
+     * 用户邮箱
+     */
+    private String userMail;
+
     private static final long serialVersionUID = 1L;
 
 

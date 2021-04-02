@@ -417,10 +417,26 @@ public class StoreHouseService {
      * 查询所有仓库列表
      *
      * @return
+     * @param userId
      */
-    public QueryResponseResult<SrSimpleStorehouseVO> getStorehouseAll() {
-        List<SrStorehouse> storehouseList = srStorehouseDao.selectList(new LambdaQueryWrapper<SrStorehouse>()
-                .select(SrStorehouse::getId, SrStorehouse::getSrName).eq(SrStorehouse::getSrStatus,SrStatusEnum.USE.getValue()));
+    public QueryResponseResult<SrSimpleStorehouseVO> getStorehouseAll(Long userId) {
+
+        //获取该管理员的权限
+        SrRole adminRoleById = adminService.getAdminRoleById(userId);
+        List<SrStorehouseProduct> list = Lists.newArrayList();
+        List<SrStorehouse> storehouseList =null;
+        //判断是否是仓库管理员
+        if (adminRoleById.getId().equals(AdminRole.STOREROOM_ADMIN.getId())) {
+            //只查询自己的仓库信息
+            storehouseList = srStorehouseDao.selectList(new LambdaQueryWrapper<SrStorehouse>()
+                    .select(SrStorehouse::getId, SrStorehouse::getSrName)
+                    .eq(SrStorehouse::getUserId,userId)
+                    .eq(SrStorehouse::getSrStatus,SrStatusEnum.USE.getValue()));
+        } else {
+            //查询所有仓库信息
+            storehouseList = srStorehouseDao.selectList(new LambdaQueryWrapper<SrStorehouse>()
+                    .select(SrStorehouse::getId, SrStorehouse::getSrName).eq(SrStorehouse::getSrStatus,SrStatusEnum.USE.getValue()));
+        }
         return StreamUtils.getPojoToVoToResponse(storehouseList,SrSimpleStorehouseVO.class,storehouseList.size());
 
     }

@@ -8,9 +8,11 @@ import com.wxy.config.response.CommonCode;
 import com.wxy.config.response.QueryResponseResult;
 import com.wxy.config.response.ResponseResult;
 import com.wxy.dao.SrRoleDao;
+import com.wxy.dao.SrStorehouseDao;
 import com.wxy.handler.SrAdminAspect;
 import com.wxy.handler.SrAdminLogAspect;
 import com.wxy.model.SrRole;
+import com.wxy.model.SrStorehouse;
 import com.wxy.model.enums.DeleteMarkEnum;
 import com.wxy.model.request.*;
 import com.wxy.model.response.AdminCode;
@@ -58,6 +60,8 @@ public class AdminService implements UserDetailsService {
     @Resource
     private SrAdminRoleDao srAdminRoleDao;
 
+    @Resource
+    private SrStorehouseDao srStorehouseDao;
 
     @Resource
     private SrRoleDao srRoleDao;
@@ -140,7 +144,9 @@ public class AdminService implements UserDetailsService {
         srAdminRoleDao.insert(srAdminRole);
         //设置仓库管理员
         //todo 设置仓库管理员
-
+        srStorehouseDao.update(null,new LambdaUpdateWrapper<SrStorehouse>()
+                .set(SrStorehouse::getUserId,srAdmin.getId())
+        .eq(SrStorehouse::getId,srAdminDTO.getStoreHoseId()));
         return ResponseResult.success();
     }
 

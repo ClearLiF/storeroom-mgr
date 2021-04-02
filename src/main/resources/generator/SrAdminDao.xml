@@ -22,6 +22,7 @@
         <result column="password" jdbcType="VARCHAR" property="password"/>
         <result column="user_nickname" jdbcType="VARCHAR" property="userNickname"/>
         <result column="user_avatar" jdbcType="VARCHAR" property="userAvatar"/>
+        <result column="user_mail" jdbcType="VARCHAR" property="userMail"/>
         <result column="last_login_time" jdbcType="BIGINT" property="lastLoginTime"/>
         <result column="create_time" jdbcType="BIGINT" property="createTime"/>
         <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
@@ -44,7 +45,7 @@ sa.last_login_time, sa.create_time,
     sa.update_time,sr.id  role_id,sr.role_name,sr.role_desc
     </sql>
     <sql id="Base_Column_List2">
-        sa.id, sa.username, sa.`password`, sa.user_nickname, sa.user_avatar,
+        sa.id, sa.username, sa.`password`, sa.user_nickname, sa.user_avatar,sa.user_mail,
 sa.last_login_time, sa.create_time,
     sa.update_time,sr.id  role_id,sr.role_name,sr.role_desc,ssh.id sr_id ,ssh.sr_site,ssh.sr_name,ssh.sr_size,
 ssh.sr_remain_size

@@ -47,6 +47,11 @@ public class SrAdmin implements Serializable, UserDetails {
     private String userNickname;
 
     /**
+     * 用户邮箱
+     */
+    private String userMail;
+
+    /**
      * user_avatar 用户头像
      */
     private String userAvatar;

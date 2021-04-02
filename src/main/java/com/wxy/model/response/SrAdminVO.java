@@ -37,6 +37,8 @@ public class SrAdminVO implements Serializable {
 
 
 
+    private String userMail;
+
     /**
      * user_nickname 管理员昵称
      */
