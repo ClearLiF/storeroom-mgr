@@ -13,5 +13,5 @@ import java.util.List;
 public interface SrOriginalProductDao extends BaseMapper<SrOriginalProduct> {
 
 
-    List<SrOriginalProduct> getProductList(String type, SearchProductDTO searchProductDTO);
+    List<SrOriginalProduct> getProductList(String type, SearchProductDTO searchStore);
 }
